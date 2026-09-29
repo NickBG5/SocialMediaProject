@@ -1,8 +1,10 @@
 package com.example.socialmediaproject.controller;
 
 import com.example.socialmediaproject.dto.LikeRequest;
+import com.example.socialmediaproject.dto.LikeResponse;
 import com.example.socialmediaproject.service.LikeService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +19,9 @@ public class LikeController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<Void> likePost(@Valid @RequestBody LikeRequest request) {
-        likeService.likePost(request.getUserId(), request.getPostId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LikeResponse> likePost(@Valid @RequestBody LikeRequest request) {
+        LikeResponse response = likeService.likePost(request.getUserId(), request.getPostId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/unlike")

@@ -1,8 +1,10 @@
 package com.example.socialmediaproject.controller;
 
 import com.example.socialmediaproject.dto.FollowRequest;
+import com.example.socialmediaproject.dto.FollowResponse;
 import com.example.socialmediaproject.service.FollowService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +19,9 @@ public class FollowController {
     }
 
     @PostMapping("/follow")
-    public ResponseEntity<Void> follow(@Valid @RequestBody FollowRequest request) {
-        followService.follow(request.getFollowerId(), request.getFollowedId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<FollowResponse> follow(@RequestBody FollowRequest request) {
+        FollowResponse response = followService.follow(request.getFollowerId(), request.getFollowedId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/unfollow")

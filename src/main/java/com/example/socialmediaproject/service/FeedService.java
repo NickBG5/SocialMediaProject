@@ -23,12 +23,12 @@ public class FeedService {
 
     public Page<FeedResponse> getFeed(Long userId, int page, int size) {
         List<Long> followedIds = followService.getFollowedUserIds(userId);
+        Pageable pageable = PageRequest.of(page, size);
 
         if (followedIds.isEmpty()) {
-            return Page.empty();
+            return Page.empty(pageable);
         }
 
-        Pageable pageable = PageRequest.of(page, size);
         return postRepository.findFeedPosts(followedIds, pageable)
                 .map(this::toFeedResponse);
     }

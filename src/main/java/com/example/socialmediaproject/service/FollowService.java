@@ -1,5 +1,6 @@
 package com.example.socialmediaproject.service;
 
+import com.example.socialmediaproject.dto.FollowResponse;
 import com.example.socialmediaproject.entity.Follow;
 import com.example.socialmediaproject.entity.User;
 import com.example.socialmediaproject.repository.FollowRepository;
@@ -22,11 +23,21 @@ public class FollowService {
         this.userService = userService;
     }
 
-    public void follow(Long followerId, Long followedId) {
-        if (followRepository.findByFollowerIdAndFollowedId(followerId, followedId).isPresent()) {
-            return; // already following
+    public FollowResponse follow(Long followerId, Long followedId) {
+
+        // If already following, return the existing follow as a response
+        var existing = followRepository.findByFollowerIdAndFollowedId(followerId, followedId);
+        if (existing.isPresent()) {
+            Follow f = existing.get();
+            return new FollowResponse(
+                    f.getId(),
+                    f.getFollower().getId(),
+                    f.getFollowed().getId(),
+                    f.getCreatedAt()
+            );
         }
 
+        // Otherwise create a new follow
         User follower = userService.getUser(followerId);
         User followed = userService.getUser(followedId);
 
@@ -34,7 +45,14 @@ public class FollowService {
         follow.setFollower(follower);
         follow.setFollowed(followed);
 
-        followRepository.save(follow);
+        Follow saved = followRepository.save(follow);
+
+        return new FollowResponse(
+                saved.getId(),
+                saved.getFollower().getId(),
+                saved.getFollowed().getId(),
+                saved.getCreatedAt()
+        );
     }
 
     public void unfollow(Long followerId, Long followedId) {

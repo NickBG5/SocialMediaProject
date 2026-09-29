@@ -1,5 +1,6 @@
 package com.example.socialmediaproject.service;
 
+import com.example.socialmediaproject.dto.LikeResponse;
 import com.example.socialmediaproject.entity.User;
 import com.example.socialmediaproject.entity.Like;
 import com.example.socialmediaproject.entity.Post;
@@ -24,9 +25,16 @@ public class LikeService {
         this.postService = postService;
     }
 
-    public void likePost(Long userId, Long postId) {
+    public LikeResponse likePost(Long userId, Long postId) {
         if (likeRepository.findByUserIdAndPostId(userId, postId).isPresent()) {
-            return; // already liked
+            // Already liked — return the existing like as a response
+            Like existing = likeRepository.findByUserIdAndPostId(userId, postId).get();
+            return new LikeResponse(
+                    existing.getId(),
+                    existing.getUser().getId(),
+                    existing.getPost().getId(),
+                    existing.getCreatedAt()
+            );
         }
 
         User user = userService.getUser(userId);
@@ -36,7 +44,14 @@ public class LikeService {
         like.setUser(user);
         like.setPost(post);
 
-        likeRepository.save(like);
+        Like saved = likeRepository.save(like);
+
+        return new LikeResponse(
+                saved.getId(),
+                saved.getUser().getId(),
+                saved.getPost().getId(),
+                saved.getCreatedAt()
+        );
     }
 
     public void unlikePost(Long userId, Long postId) {
@@ -47,4 +62,5 @@ public class LikeService {
     public long countLikes(Long postId) {
         return likeRepository.countByPostId(postId);
     }
+
 }
